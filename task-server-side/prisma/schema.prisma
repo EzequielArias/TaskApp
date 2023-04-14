@@ -16,6 +16,7 @@ model User {
     hash String
     avatar String
     email String @unique
+    rtHash String?
 
     taks Task[]
 
