@@ -1,9 +1,10 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Token } from './types';
 import { AuthDto } from './dto';
 import { AtGuard, RtGuard } from 'src/common/guards';
 import { GetCurrentUser, GetCurrentUserId, Public } from 'src/common/decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')
 export class AuthController {
@@ -11,9 +12,12 @@ export class AuthController {
 
   @Public()
   @Post('/signup')
-  signup(@Body() dto: AuthDto): Promise<{ message: string; tokens: Token }> {
-    return this.AuthService.signup(dto);
+  @UseInterceptors(FileInterceptor('file'))
+  signup(/*@Body() dto: AuthDto,*/ @UploadedFile() file : Express.Multer.File)/*: Promise<{ message: string; tokens: Token }>*/ {
+    //return this.AuthService.signup(dto);
+    return this.AuthService.handleFiles(file)
   }
+
   @Public()
   @Post('/signin')
   signin(@Body() dto: AuthDto){
