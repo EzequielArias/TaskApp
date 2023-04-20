@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
-import { Token } from './types';
+import { Token, CurrentUser } from './types';
 import { AuthDto } from './dto';
 import { FirebaseService } from 'src/firebase/firebase.service';
 
@@ -14,9 +14,8 @@ export class AuthService {
     private config: ConfigService,
     private prisma: PrismaService,
     private JwtService: JwtService,
-    private FirebaseService : FirebaseService
-  ) 
-  {}
+    private FirebaseService: FirebaseService,
+  ) {}
 
   async getToken(userId: number, email: string): Promise<Token> {
     const jwtPayload = {
@@ -42,13 +41,6 @@ export class AuthService {
     };
   }
 
-  async handleFiles(file : Express.Multer.File){
-    console.log(file)
-   const url = this.FirebaseService.uploadFiles(file)
-   return url
-  }
-
-
   async updateRt(userId: number, rt: string) {
     const hash = await argon.hash(rt);
 
@@ -62,25 +54,38 @@ export class AuthService {
     });
   }
 
-  async signup(dto: AuthDto): Promise<{ message: string; tokens: Token }> {
+  async signup(
+    dto: AuthDto,
+    file: Express.Multer.File,
+  ): Promise<{ currentUser: CurrentUser; tokens: Token }> {
     const password = await argon.hash(dto.password);
-    try {
 
+    const image = await this.FirebaseService.uploadFiles(file);
+
+    try {
       const newUser = await this.prisma.user.create({
         data: {
           hash: password,
           name: dto.name,
           email: dto.email,
-          avatar:
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDjdINpRk9LYh6GqAiiTJIx81FlmZtH_0gJxmT_Ps&s',
+          avatar: null
+            ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDjdINpRk9LYh6GqAiiTJIx81FlmZtH_0gJxmT_Ps&s'
+            : image,
         },
       });
 
       const tokens = await this.getToken(newUser.id, newUser.email);
       // Wait for attach the hash in DB
       await this.updateRt(newUser.id, tokens.refresh_token);
+
+      const currentUser = {
+        name: newUser.name,
+        avatar: newUser.avatar,
+        email: newUser.email,
+      };
+
       return {
-        message: `Felicidades ${newUser.name} ya tienes una cuenta!`,
+        currentUser,
         tokens,
       };
     } catch (error) {
@@ -93,7 +98,9 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto): Promise<{ message: string; tokens: Token }> {
+  async signin(
+    dto: AuthDto,
+  ): Promise<{ currentUser: CurrentUser; tokens: Token }> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -109,8 +116,14 @@ export class AuthService {
 
     await this.updateRt(user.id, tokens.refresh_token);
 
+    const currentUser = {
+      name: user.name,
+      avatar: user.avatar,
+      email: user.email,
+    };
+
     return {
-      message: `Bienvenido otra vez ${user.name}`,
+      currentUser,
       tokens,
     };
   }

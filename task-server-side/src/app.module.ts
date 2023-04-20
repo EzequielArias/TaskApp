@@ -17,14 +17,14 @@ import { MulterModule } from '@nestjs/platform-express';
     PrismaModule,
     FirebaseModule,
     MulterModule.register({
-      dest : './uploads'
-    })
+      dest: './uploads',
+    }),
   ],
-  providers : [
+  providers: [
     {
-      provide : APP_GUARD,
-      useClass : AtGuard
+      provide: APP_GUARD,
+      useClass: AtGuard,
     },
-  ]
+  ],
 })
 export class AppModule {}

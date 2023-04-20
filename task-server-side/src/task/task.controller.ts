@@ -30,16 +30,13 @@ export class TaskController {
 
   @HttpCode(HttpStatus.OK)
   @Put('update')
-  updateTask(
-    @GetCurrentUserId() userId: number,
-    @Body() data: TaskUpdateDto,
-  ){
-    return this.TaskService.updateTask(userId, data)
+  updateTask(@GetCurrentUserId() userId: number, @Body() data: TaskUpdateDto) {
+    return this.TaskService.updateTask(userId, data);
   }
 
   @HttpCode(HttpStatus.OK)
   @Patch('remove')
-  removeTask(@Body() taskId : number, @GetCurrentUserId() userId : number){
-    return this.TaskService.removeTask(taskId, userId)
+  removeTask(@Body() taskId: number, @GetCurrentUserId() userId: number) {
+    return this.TaskService.removeTask(taskId, userId);
   }
 }

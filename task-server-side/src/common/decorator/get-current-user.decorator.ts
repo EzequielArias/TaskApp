@@ -5,7 +5,7 @@ export const GetCurrentUser = createParamDecorator(
   (data: keyof JwtPayloadWithRt | undefined, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
     if (!data) return request.user;
-    console.log(request.user[data])
+    console.log(request.user[data]);
     return request.user[data];
   },
 );

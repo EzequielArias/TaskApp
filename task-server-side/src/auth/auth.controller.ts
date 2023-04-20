@@ -1,4 +1,13 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Token } from './types';
 import { AuthDto } from './dto';
@@ -13,20 +22,23 @@ export class AuthController {
   @Public()
   @Post('/signup')
   @UseInterceptors(FileInterceptor('file'))
-  signup(/*@Body() dto: AuthDto,*/ @UploadedFile() file : Express.Multer.File)/*: Promise<{ message: string; tokens: Token }>*/ {
-    //return this.AuthService.signup(dto);
-    return this.AuthService.handleFiles(file)
+  signup(
+    @Body() dto: AuthDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) /*: Promise<{ message: string; tokens: Token }>*/ {
+    console.log(dto);
+    return this.AuthService.signup(dto, file);
   }
 
   @Public()
   @Post('/signin')
-  signin(@Body() dto: AuthDto){
-    return this.AuthService.signin(dto)
+  signin(@Body() dto: AuthDto) {
+    return this.AuthService.signin(dto);
   }
 
   @UseGuards(AtGuard)
   @Post('logout')
-  logout(@GetCurrentUserId() userId : number) {
+  logout(@GetCurrentUserId() userId: number) {
     return this.AuthService.logout(userId);
   }
 
@@ -34,7 +46,10 @@ export class AuthController {
   @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  refreshToken(@GetCurrentUser('refreshToken') refreshToken : string, @GetCurrentUserId() userId : number) {
-    return this.AuthService.refreshToken(userId,refreshToken);
+  refreshToken(
+    @GetCurrentUser('refreshToken') refreshToken: string,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.AuthService.refreshToken(userId, refreshToken);
   }
 }

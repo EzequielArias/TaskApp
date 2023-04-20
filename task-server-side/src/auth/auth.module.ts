@@ -10,5 +10,4 @@ import { FirebaseModule } from 'src/firebase/firebase.module';
   providers: [AuthService, AtStrategy, RtStrategy],
   controllers: [AuthController],
 })
-
 export class AuthModule {}

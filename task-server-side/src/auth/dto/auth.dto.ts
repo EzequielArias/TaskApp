@@ -17,4 +17,3 @@ export class AuthDto {
   //@IsStrongPassword()
   password: string;
 }
- 

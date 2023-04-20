@@ -1,12 +1,11 @@
-import { IsNumber, IsString, Min, Max } from 'class-validator'
+import { IsNumber, IsString, Min, Max } from 'class-validator';
 
 export class TaskDto {
+  @IsString()
+  title: string;
 
-    @IsString()
-    title : string
-
-    @IsNumber()
-    @Min(1)
-    @Max(5)
-    difficulty : number
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  difficulty: number;
 }

@@ -36,7 +36,7 @@ export class TaskService {
     const result = await this.prisma.task.findMany({
       where: {
         userId: userId,
-        isDeleted : false
+        isDeleted: false,
       },
     });
     return result;
@@ -63,25 +63,24 @@ export class TaskService {
     }
   }
 
-  async removeTask(taskId : number, userId : number){
-    console.log(taskId)
-    const acess = await this.prisma.task.findUnique({
-      where : {
-        id : taskId['id']
-      }
-    })
+  async removeTask(taskId: number, userId: number) {
 
-    if(acess.userId !== userId) throw new ForbiddenException('Acess denied')
+    const acess = await this.prisma.task.findUnique({
+      where: {
+        id: taskId['id'],
+      },
+    });
+
+    if (acess.userId !== userId) throw new ForbiddenException('Acess denied');
 
     const task = await this.prisma.task.update({
-        where : {
-            id : taskId['id']
-        },
-        data : {
-            isDeleted : true
-        }
-    })
-    return task
+      where: {
+        id: taskId['id'],
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+    return task;
   }
-  
 }
